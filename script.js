@@ -1,76 +1,38 @@
-//your JS code here. If required.
-// Helper function to set a cookie
-function setCookie(name, value, days) {
-  const date = new Date();
-  date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("form");
+  const fontSizeInput = document.getElementById("fontsize");
+  const fontColorInput = document.getElementById("fontcolor");
 
-// Helper function to get a cookie by name
-function getCookie(name) {
+  // Apply saved preferences from cookies
   const cookies = document.cookie.split("; ");
-  for (let i = 0; i < cookies.length; i++) {
-    const [key, value] = cookies[i].split("=");
-    if (key === name) return value;
-  }
-  return null;
-}
+  const preferences = Object.fromEntries(
+    cookies.map((cookie) => cookie.split("="))
+  );
 
-// Apply saved preferences from cookies
-function applyPreferences() {
-  const savedFontSize = getCookie("fontsize");
-  const savedFontColor = getCookie("fontcolor");
-
-  if (savedFontSize) {
-    document.documentElement.style.setProperty("--fontsize", `${savedFontSize}px`);
-    document.getElementById("fontsize").value = savedFontSize;
+  if (preferences.fontsize) {
+    document.documentElement.style.setProperty("--fontsize", preferences.fontsize + "px");
+    fontSizeInput.value = preferences.fontsize;
   }
 
-  if (savedFontColor) {
-    document.documentElement.style.setProperty("--fontcolor", savedFontColor);
-    document.getElementById("fontcolor").value = savedFontColor;
+  if (preferences.fontcolor) {
+    document.documentElement.style.setProperty("--fontcolor", preferences.fontcolor);
+    fontColorInput.value = preferences.fontcolor;
   }
-}
 
-// Save preferences to cookies and apply them
-document.getElementById("preferencesForm").addEventListener("submit", (event) => {
-  event.preventDefault();
+  // Save preferences to cookies on form submit
+  form.addEventListener("submit", (event) => {
+    event.preventDefault(); // Prevent form submission
 
-  const fontSize = document.getElementById("fontsize").value;
-  const fontColor = document.getElementById("fontcolor").value;
+    const fontSize = fontSizeInput.value;
+    const fontColor = fontColorInput.value;
 
-  // Save preferences to cookies
-  setCookie("fontsize", fontSize, 365); // Save for 1 year
-  setCookie("fontcolor", fontColor, 365);
+    // Save cookies
+    document.cookie = `fontsize=${fontSize}; path=/`;
+    document.cookie = `fontcolor=${fontColor}; path=/`;
 
-  // Apply preferences
-  document.documentElement.style.setProperty("--fontsize", `${fontSize}px`);
-  document.documentElement.style.setProperty("--fontcolor", fontColor);
-
-  alert("Preferences saved!");
-});
-
-// Initialize the page with saved preferences
-applyPreferences();   
-describe('example to-do app', () => {
-  beforeEach(() => {
-    cy.visit('index.html'); // Correct path to your app
-    cy.log('Page visited');
-  });
-
-  it('should allow users to customize font size and color', () => {
-    cy.get('#fontsize').clear().type('20');
-    cy.get('#fontcolor').invoke('val', '#0000FF').trigger('input');
-    cy.get('input[type="submit"]').click();
-
-    // Check if cookies are saved
-    cy.getCookie('fontSize').should('have.property', 'value', '20');
-    cy.getCookie('fontColor').should('have.property', 'value', '#0000FF');
-
-    // Reload and verify preferences
-    cy.reload();
-    cy.get('body').should('have.css', 'font-size', '20px');
-    cy.get('body').should('have.css', 'color', 'rgb(0, 0, 255)');
+    // Apply styles
+    document.documentElement.style.setProperty("--fontsize", fontSize + "px");
+    document.documentElement.style.setProperty("--fontcolor", fontColor);
   });
 });
 
