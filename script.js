@@ -51,4 +51,26 @@ document.getElementById("preferencesForm").addEventListener("submit", (event) =>
 });
 
 // Initialize the page with saved preferences
-applyPreferences();
+applyPreferences();   
+describe('example to-do app', () => {
+  beforeEach(() => {
+    cy.visit('index.html'); // Correct path to your app
+    cy.log('Page visited');
+  });
+
+  it('should allow users to customize font size and color', () => {
+    cy.get('#fontsize').clear().type('20');
+    cy.get('#fontcolor').invoke('val', '#0000FF').trigger('input');
+    cy.get('input[type="submit"]').click();
+
+    // Check if cookies are saved
+    cy.getCookie('fontSize').should('have.property', 'value', '20');
+    cy.getCookie('fontColor').should('have.property', 'value', '#0000FF');
+
+    // Reload and verify preferences
+    cy.reload();
+    cy.get('body').should('have.css', 'font-size', '20px');
+    cy.get('body').should('have.css', 'color', 'rgb(0, 0, 255)');
+  });
+});
+
